@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotating Fan Image</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            overflow: hidden;
+        }
+        .bg-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 1366px;
+            height: 768px;
+            background: url('BG.png') no-repeat center center;
+            background-size: cover;
+            transform: translate(-50%, -50%);
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+        }
+        .sun, .moon, .fan2, .text1, .text2, .slideshow {
+            position: absolute;
+        }
+        .sun {
+            left: 0%;
+            top: 25%;
+        }
+        .moon {
+            right: 5%;
+            top: 45%;
+        }
+        .fan2 {
+            left: 70%;
+            top: 55%;
+            width: 40%;
+            height: auto;
+            transform-origin: left center;
+            animation: rotateFan 4s infinite ease-in-out;
+        }
+        .text1 {
+            left: 50%;
+            top: 50%;
+            width: var(--text1-size, 32%);
+            height: auto;
+            transform: translate(-50%, -20%) rotate(0deg);
+            animation: spin 8s linear infinite;
+            z-index: 1;
+        }
+        .text2 {
+            left: 50%;
+            top: 50%;
+            width: var(--text2-size, 45%);
+            height: auto;
+            transform: translate(-50%, -50%) rotate(0deg);
+            animation: spin 11s linear infinite;
+            z-index: 1;
+        }
+        .slideshow {
+            left: 8%;
+            top: 74%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 200px;
+        }
+        .slideshow2 {
+            right: 50%;
+            top: 38%;
+            transform: translateX(370%);
+            width: 300px;
+            height: 200px;
+        }
+        .status-text {
+            position: fixed;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 9999;  /* 다른 오브젝트들보다 앞에 오도록 설정 */
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* 런던 텍스트 위치 */
+        .london {
+            right: 80%;  /* 왼쪽으로 조금 이동 */
+            top: 48%;    /* 아래로 조금 이동 */
+        }
+        
+        /* 서울 텍스트 위치 */
+        
+        .seoul {
+            top: 48%;    /* 위로 살짝 조정 */
+            right: 5%;  /* 더 오른쪽으로 이동 */
+        }
+
+
+        
+
+        @keyframes rotateFan {
+            0% { transform: translate(-50%, -50%) rotate(-3deg); }
+            50% { transform: translate(-50%, -50%) rotate(3deg); }
+            100% { transform: translate(-50%, -50%) rotate(-3deg); }
+        }
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-text london">Current Status of London</div>
+    <div class="status-text seoul">Current Status of Seoul</div>
+    <div class="bg-container">
+        <img src="Sun.png" alt="Sun" class="sun">
+        <img src="Moon.png" alt="Moon" class="moon">
+        <img src="fan 2.png" alt="Fan 2" class="fan2">
+        <img src="text 1.png" alt="Text 1" class="text1" id="text1">
+        <img src="text 2.png" alt="Text 2" class="text2" id="text2">
+        <img src="2.JPG" alt="Slideshow" class="slideshow" id="slideshow">
+        <img src="121.JPG" alt="Slideshow 2" class="slideshow2" id="slideshow2">
+
+    </div>
+    <script>
+        let fan;
+        let centerX, centerY;
+        let pivotX, pivotY;
+        let offsetX = 167;
+        let offsetY = 40;
+        let imageIndex = 0;
+        let imageIndex2 = 0;
+        const imageList = [2, 5, 7, 8, 10, 11, 12, 13];
+        const imageList2 = [121, 122, 123, 124, 125, 126];
+        
+        function preload() {
+            fan = loadImage('fan.png');
+        }
+        
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            centerX = width / 2;
+            centerY = height / 2;
+            pivotX = centerX;
+            pivotY = centerY;
+            clear();
+        }
+        
+        function draw() {
+            clear();
+            translate(pivotX, pivotY);
+            let angle = atan2(mouseY - pivotY, mouseX - pivotX);
+            rotate(angle + PI);
+            imageMode(CENTER);
+            image(fan, -offsetX, -offsetY, 546, 482);
+        }
+        
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            centerX = width / 2;
+            centerY = height / 2;
+            pivotX = centerX;
+            pivotY = centerY - 20;
+            clear();
+        }
+
+        function setText1Size(size) {
+            document.documentElement.style.setProperty('--text1-size', size);
+        }
+        function setText2Size(size) {
+            document.documentElement.style.setProperty('--text2-size', size);
+        }
+        
+        function changeSlideshowImage() {
+            imageIndex = (imageIndex + 1) % imageList.length;
+            document.getElementById("slideshow").src = imageList[imageIndex] + ".JPG";
+        }
+        setInterval(changeSlideshowImage, 3000);
+
+        function changeSlideshowImage2() {
+            imageIndex2 = (imageIndex2 + 1) % imageList2.length;
+            document.getElementById("slideshow2").src = imageList2[imageIndex2] + ".JPG";
+        }
+
+setInterval(changeSlideshowImage2, 3000);
+    </script>
+</body>
+</html>
